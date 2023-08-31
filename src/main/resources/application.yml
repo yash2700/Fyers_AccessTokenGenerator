@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: loginMS
+
+server:
+  port: 8000
+
+resilience4j.circuitBreaker:
+  instances:
+    loginMS:
+      failureRateThreshold: 50
+      ringBufferSizeInClosedState: 5
+      ringBufferSizeInHalfOpenState: 3
+      waitDurationInOpenState: 20s
+      automaticTransitionFromOpenToHalfOpenEnabled: true
