@@ -1,17 +1,14 @@
 package com.fyers.loginMs.controller;
 
+import com.fyers.loginMs.dto.LoginRequestDto;
+import com.fyers.loginMs.dto.RefreshTokenDto;
 import com.fyers.loginMs.serviceImpl.LoginServiceImpl;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/login")
@@ -20,16 +17,24 @@ public class LoginController {
     @Autowired
     LoginServiceImpl loginService;
 
-
-
-    @CircuitBreaker(name = "loginMS",fallbackMethod = "getAccessTokenFallback")
+//    @CircuitBreaker(name = "loginMS",fallbackMethod = "getAccessTokenFallback")
     @GetMapping("/getAccessToken")
-    public ResponseEntity<String> getAccessToken(@RequestParam("accessToken") String accessToken){
-        return new ResponseEntity<>(loginService.getAccessToken(accessToken), HttpStatus.OK);
+    public ResponseEntity<String> getAccessToken(@RequestParam("appId") String appId){
+        return new ResponseEntity<>(loginService.getAccessToken(appId), HttpStatus.OK);
     }
 
-    public ResponseEntity<String> getAccessTokenFallback(String accessToken, Throwable throwable) throws InterruptedException {
-        logger.info("--------getting new access token!-----------");
-        return new ResponseEntity<>(loginService.getNewAccessToken(),HttpStatus.OK);
+    @PostMapping("/newToken")
+    public ResponseEntity<String> generateNewAccessToken(@RequestBody()LoginRequestDto loginRequestDto) throws InterruptedException {
+        return new ResponseEntity<>(loginService.getNewAccessToken(loginRequestDto),HttpStatus.OK);
     }
+
+    @PostMapping("/newTokenRefresh")
+    public ResponseEntity<String> generateNewTokenUsingRefreshToken(@RequestBody() RefreshTokenDto refreshTokenDto){
+        return new ResponseEntity<>(loginService.generateAccessTokenUsingRefreshToken(refreshTokenDto),HttpStatus.OK);
+    }
+
+//
+
+
+
 }

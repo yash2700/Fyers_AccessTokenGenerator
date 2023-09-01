@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.swing.text.html.Option;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Optional;
 
 @Configuration
@@ -18,9 +20,21 @@ public class RedisConfig {
         this.redisTemplate=redisTemplate;
     }
 
-    public void createKeyValue(String key,String data,int days){
-        Duration duration=Duration.ofSeconds(days);
-        redisTemplate.opsForValue().set(key,data,duration);
+    public void createKeyValue(String key,String data){
+        if(key.contains("accessToken")){
+            LocalDateTime localDateTime=LocalDateTime.now();
+            LocalDateTime localDateTimeMidnight=localDateTime.toLocalDate().atTime(LocalTime.MIDNIGHT);
+
+            Duration duration=Duration.between(localDateTime,localDateTimeMidnight);
+            long minutes=duration.toMinutes();
+            if(minutes<0)
+                    minutes+=1440;
+
+            redisTemplate.opsForValue().set(key,data,Duration.ofMinutes(minutes));
+        }
+        else{
+            redisTemplate.opsForValue().set(key,data,Duration.ofDays(14));
+        }
     }
 
     public String getValueByKey(String key){

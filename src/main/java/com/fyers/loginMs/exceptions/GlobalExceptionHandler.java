@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     @Autowired
     Environment environment;
     private static final Logger logger= LoggerFactory.getLogger(GlobalExceptionHandler.class);
-    @ExceptionHandler({AccessTokenNotFoundException.class, OtpNotFoundException.class})
+    @ExceptionHandler({AccessTokenNotFoundException.class, OtpNotFoundException.class, RefreshTokenNotFound.class})
     public ResponseEntity<ErrorInfo> handleExceptions(Exception e){
         logger.error(environment.getProperty(e.getMessage()));
         return new ResponseEntity<>(
